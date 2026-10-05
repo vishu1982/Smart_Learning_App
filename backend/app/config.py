@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     MONGODB_URI: str = os.getenv(
         "MONGODB_URI",
-        "mongodb://localhost:27017/"
+        "mongodb+srv://<db_username>:<db_password>@vishu.zwejdog.mongodb.net/smart_learning_db?retryWrites=true&w=majority"
     )
 
     DATABASE_NAME: str = os.getenv(
