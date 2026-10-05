@@ -26,14 +26,17 @@ async def upload_material(
 
     private = is_private.lower() in ("true", "1", "yes")
 
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     file_bytes = await file.read()
     file_size = len(file_bytes)
 
     safe_filename = f"{int(datetime.utcnow().timestamp())}_{file.filename}"
     file_path = os.path.join(settings.UPLOAD_DIR, safe_filename)
-    with open(file_path, "wb") as f:
-        f.write(file_bytes)
+    try:
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(file_bytes)
+    except Exception as e:
+        print(f" [Upload Notice] Could not write file to disk ({e}). Proceeding with in-memory text extraction.")
 
     extracted_text = pdf_service.extract_text_from_bytes(file_bytes)
     summary_data = await ai_service.summarize_document(

@@ -34,7 +34,10 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
-    UPLOAD_DIR: str = "uploads/materials"
+    UPLOAD_DIR: str = os.getenv(
+        "UPLOAD_DIR",
+        "/tmp/uploads/materials" if os.getenv("VERCEL") else "uploads/materials"
+    )
 
     class Config:
         env_file = ".env"
