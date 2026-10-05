@@ -41,6 +41,9 @@ class AIService:
                     candidates = data.get("candidates", [])
                     if candidates:
                         return candidates[0]["content"]["parts"][0]["text"]
+                elif resp.status_code == 401:
+                    print(f" [Gemini Notice] Invalid GEMINI_API_KEY (401 Unauthorized). Please check your key at https://aistudio.google.com/app/apikey")
+                    break
                 else:
                     print(f" [Gemini Notice] Model {model} status {resp.status_code}: {resp.text[:150]}")
             except Exception as e:
@@ -79,6 +82,9 @@ class AIService:
                     candidates = data.get("candidates", [])
                     if candidates:
                         return candidates[0]["content"]["parts"][0]["text"]
+                elif resp.status_code == 401:
+                    print(f" [Gemini Chat Notice] Invalid GEMINI_API_KEY (401 Unauthorized). Please check your key at https://aistudio.google.com/app/apikey")
+                    break
                 else:
                     print(f" [Gemini Chat Notice] Model {model} status {resp.status_code}: {resp.text[:150]}")
             except Exception as e:
@@ -369,6 +375,8 @@ JSON schema:
                 data = resp.json()
                 if "choices" in data and len(data["choices"]) > 0:
                     return data["choices"][0]["message"]["content"]
+            elif resp.status_code == 402:
+                print(f" [DeepSeek Notice] Insufficient Balance (402). Your DeepSeek account has 0 credits. Please recharge at https://platform.deepseek.com. Falling back to Gemini...")
             else:
                 print(f" [DeepSeek Error] status {resp.status_code}: {resp.text[:150]}")
         except Exception as e:
