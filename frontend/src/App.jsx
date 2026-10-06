@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
@@ -105,6 +106,7 @@ export default function App() {
 
         </main>
       </div>
+      <Analytics />
     </div>
   );
 }
