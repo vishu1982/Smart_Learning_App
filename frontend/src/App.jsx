@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
@@ -76,35 +77,38 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar
-        user={user}
-        onLogout={handleLogout}
-        onUserUpdate={handleUserUpdate}
-        onNavigateTab={setActiveTab}
-        activeTab={activeTab}
-      />
+    <>
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <Navbar
+          user={user}
+          onLogout={handleLogout}
+          onUserUpdate={handleUserUpdate}
+          onNavigateTab={setActiveTab}
+          activeTab={activeTab}
+        />
 
 
-      <div className="flex flex-1">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} userRole={user.role} />
-        <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
-          {activeTab === 'dashboard' && <StudentDashboard onNavigateTab={setActiveTab} />}
-          {activeTab === 'summarizer' && (
-            <SummarizerPage onGenerateQuizForMaterial={handleGenerateQuizFromMaterial} />
-          )}
-          {activeTab === 'quizzes' && (
-            <QuizEnginePage initialMaterial={quizMaterialContext} />
-          )}
-          {activeTab === 'tutor'           && <AITutorPage />}
-          {activeTab === 'admin-dashboard' && <AdminDashboard />}
-          {activeTab === 'community'       && <CommunityPage />}
-          {activeTab === 'videos'          && <VideosPage />}
-          {activeTab === 'profile'         && <ProfilePage user={user} onLogout={handleLogout} />}
+        <div className="flex flex-1">
+          <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} userRole={user.role} />
+          <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full">
+            {activeTab === 'dashboard' && <StudentDashboard onNavigateTab={setActiveTab} />}
+            {activeTab === 'summarizer' && (
+              <SummarizerPage onGenerateQuizForMaterial={handleGenerateQuizFromMaterial} />
+            )}
+            {activeTab === 'quizzes' && (
+              <QuizEnginePage initialMaterial={quizMaterialContext} />
+            )}
+            {activeTab === 'tutor'           && <AITutorPage />}
+            {activeTab === 'admin-dashboard' && <AdminDashboard />}
+            {activeTab === 'community'       && <CommunityPage />}
+            {activeTab === 'videos'          && <VideosPage />}
+            {activeTab === 'profile'         && <ProfilePage user={user} onLogout={handleLogout} />}
 
 
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+      <Analytics />
+    </>
   );
 }
