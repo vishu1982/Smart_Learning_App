@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
@@ -105,6 +106,7 @@ export default function App() {
 
         </main>
       </div>
+      <SpeedInsights />
     </div>
   );
 }

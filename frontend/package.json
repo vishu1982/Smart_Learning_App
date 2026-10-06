@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vercel/speed-insights": "^2.0.0",
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "lucide-react": "^0.395.0",
