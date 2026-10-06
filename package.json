@@ -8,5 +8,8 @@
     "dev": "npm --prefix frontend run dev",
     "frontend": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
   }
 }
