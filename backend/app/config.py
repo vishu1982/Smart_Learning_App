@@ -1,8 +1,15 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
-load_dotenv()
+# Reliably load .env from the backend directory regardless of current working directory
+_BASE_DIR = Path(__file__).resolve().parent.parent
+_ENV_FILE = _BASE_DIR / ".env"
+if _ENV_FILE.exists():
+    load_dotenv(dotenv_path=_ENV_FILE)
+else:
+    load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -38,6 +45,16 @@ class Settings(BaseSettings):
         "UPLOAD_DIR",
         "/tmp/uploads/materials" if os.getenv("VERCEL") else "uploads/materials"
     )
+
+    # Email configuration for OTP and notifications
+    EMAIL_HOST: str = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+    EMAIL_PORT: int = int(os.getenv("EMAIL_PORT", "587"))
+    EMAIL_USER: str = os.getenv("EMAIL_USER", "")
+    EMAIL_PASS: str = os.getenv("EMAIL_PASS", "")
+    EMAIL_FROM_NAME: str = os.getenv("EMAIL_FROM_NAME", "Smart Learning AI")
+
+    # YouTube API key for educational video search
+    YOUTUBE_API_KEY: str = os.getenv("YOUTUBE_API_KEY", "")
 
     class Config:
         env_file = ".env"

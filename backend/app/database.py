@@ -25,6 +25,8 @@ async def connect_to_mongo():
     if "<db_username>" in settings.MONGODB_URI or "<db_password>" in settings.MONGODB_URI:
         print(" [DB WARNING] MONGODB_URI contains '<db_username>' or '<db_password>' placeholders.")
         print(" [DB ACTION REQUIRED] Please replace <db_username> and <db_password> in backend/.env with your real MongoDB Atlas user credentials!")
+        db_instance.client = None
+        db_instance.db = None
         return
 
     try:
@@ -39,11 +41,15 @@ async def connect_to_mongo():
         ):
             kwargs["tlsCAFile"] = certifi.where()
 
-        db_instance.client = AsyncIOMotorClient(settings.MONGODB_URI, **kwargs)
-        db_instance.db = db_instance.client[settings.DATABASE_NAME]
-        await db_instance.client.admin.command('ping')
+        client = AsyncIOMotorClient(settings.MONGODB_URI, **kwargs)
+        # Verify connection with ping BEFORE publishing db instance
+        await client.admin.command('ping')
+        db_instance.client = client
+        db_instance.db = client[settings.DATABASE_NAME]
         print(f" [DB] Connected successfully to MongoDB Atlas: '{settings.DATABASE_NAME}'")
     except Exception as e:
+        db_instance.client = None
+        db_instance.db = None
         err_msg = str(e)
         if "TLSV1_ALERT_INTERNAL_ERROR" in err_msg or "SSL handshake failed" in err_msg:
             print("\n" + "="*75)
@@ -70,6 +76,8 @@ async def connect_to_mongo():
 async def close_mongo_connection():
     if db_instance.client:
         db_instance.client.close()
+        db_instance.client = None
+        db_instance.db = None
         print(" [DB] MongoDB connection closed.")
 
 def get_database():

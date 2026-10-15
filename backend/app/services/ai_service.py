@@ -6,8 +6,9 @@ from app.config import settings
 class AIService:
     def __init__(self):
         self.api_key = settings.GEMINI_API_KEY.strip() if settings.GEMINI_API_KEY else ""
-        self.primary_model = settings.GEMINI_MODEL.strip() if settings.GEMINI_MODEL else "gemini-3.8-flash"
-        self.fallback_models = [self.primary_model, "gemini-3.8-flash", "gemini-2.5-flash", "gemini-flash-latest"]
+        self.primary_model = settings.GEMINI_MODEL.strip() if settings.GEMINI_MODEL else "gemini-1.5-flash"
+        models = [self.primary_model, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"]
+        self.fallback_models = list(dict.fromkeys(models))
         self.has_api = len(self.api_key) > 10
 
     def _call_gemini_rest(self, prompt: str, is_json: bool = False, system_instruction: str = "") -> str:

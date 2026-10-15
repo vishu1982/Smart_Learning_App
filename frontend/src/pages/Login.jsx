@@ -7,6 +7,19 @@ import { axiosClient } from '../api/axiosClient';
 
 const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
 
+const getErrorMessage = (err, fallback = 'An error occurred. Please try again.') => {
+  if (!err.response) {
+    return 'Cannot reach backend server. Please make sure the backend is running on http://localhost:8000';
+  }
+  const detail = err.response.data?.detail;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail.map(x => x.msg || x.message || (typeof x === 'string' ? x : JSON.stringify(x))).join('; ');
+  }
+  if (err.response.data?.message) return err.response.data.message;
+  return fallback;
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // OTP INPUT SCREEN (shared by Login Step 2 and Register Step 2)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -28,7 +41,7 @@ function OtpScreen({ email, purpose, onSuccess, onBack }) {
       const res = await axiosClient.post(verifyEndpoint, { email, otp: otp.trim() });
       onSuccess(res.data.user, res.data.access_token);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid or expired OTP. Please try again.');
+      setError(getErrorMessage(err, 'Invalid or expired OTP. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -167,8 +180,7 @@ function LoginForm({ onOtpSent }) {
         onOtpSent(null, res.data);
       }
     } catch (err) {
-      const d = err.response?.data?.detail;
-      setError(typeof d === 'string' ? d : 'Connection error. Make sure backend is running.');
+      setError(getErrorMessage(err, 'Connection error. Make sure backend is running.'));
     } finally {
       setLoading(false);
     }
@@ -286,8 +298,7 @@ function RegisterForm({ onOtpSent }) {
         onOtpSent(null, res.data);
       }
     } catch (err) {
-      const d = err.response?.data?.detail;
-      setError(typeof d === 'string' ? d : 'Error. Please check your details and try again.');
+      setError(getErrorMessage(err, 'Registration failed. Please check your details and try again.'));
     } finally {
       setLoading(false);
     }

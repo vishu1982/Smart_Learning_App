@@ -16,36 +16,38 @@ import smtplib
 import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.header import Header
 from datetime import datetime
-
-EMAIL_HOST      = os.getenv("EMAIL_HOST",      "smtp.gmail.com")
-EMAIL_PORT      = int(os.getenv("EMAIL_PORT",  "587"))
-EMAIL_USER      = os.getenv("EMAIL_USER",      "")        # set in .env
-EMAIL_PASS      = os.getenv("EMAIL_PASS",      "")        # set in .env
-EMAIL_FROM_NAME = os.getenv("EMAIL_FROM_NAME", "Smart Learning AI")
+from app.config import settings
 
 
 def _send(to_email: str, subject: str, html_body: str) -> bool:
     """Low-level send. Returns True on success, False on failure."""
-    if not EMAIL_USER or not EMAIL_PASS:
-        print(f"[Email] Skipped (no credentials): {subject} → {to_email}")
+    email_user = settings.EMAIL_USER or os.getenv("EMAIL_USER", "")
+    email_pass = settings.EMAIL_PASS or os.getenv("EMAIL_PASS", "")
+    email_host = settings.EMAIL_HOST or os.getenv("EMAIL_HOST", "smtp.gmail.com")
+    email_port = int(settings.EMAIL_PORT or os.getenv("EMAIL_PORT", "587"))
+    from_name  = settings.EMAIL_FROM_NAME or os.getenv("EMAIL_FROM_NAME", "Smart Learning AI")
+
+    if not email_user or not email_pass:
+        print(f"[Email] Skipped (no credentials configured in .env): -> {to_email}")
         return False
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"]    = f"{EMAIL_FROM_NAME} <{EMAIL_USER}>"
+        msg["Subject"] = Header(subject, "utf-8")
+        msg["From"]    = f"{from_name} <{email_user}>"
         msg["To"]      = to_email
-        msg.attach(MIMEText(html_body, "html"))
+        msg.attach(MIMEText(html_body, "html", "utf-8"))
 
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+        with smtplib.SMTP(email_host, email_port, timeout=10) as server:
             server.ehlo()
             server.starttls()
-            server.login(EMAIL_USER, EMAIL_PASS)
-            server.sendmail(EMAIL_USER, to_email, msg.as_string())
-        print(f"[Email] ✓ Sent: '{subject}' → {to_email}")
+            server.login(email_user, email_pass)
+            server.sendmail(email_user, to_email, msg.as_string())
+        print(f"[Email] [OK] Successfully sent email to: {to_email}")
         return True
     except Exception as e:
-        print(f"[Email] ✗ Failed: {e}")
+        print(f"[Email] [ERROR] Send failed to {to_email}: {e}")
         return False
 
 
@@ -277,7 +279,7 @@ def send_otp_email(to_email: str, full_name: str, otp: str, purpose: str = "logi
     """
     return _send(
         to_email=to_email,
-        subject=f"{'💳' if purpose == 'payment' else '🔐'} Your Smart Learning AI OTP: {otp}",
+        subject=f"[{'Payment' if purpose == 'payment' else 'Verification'}] Your Smart Learning AI OTP: {otp}",
         html_body=_base_template(content)
     )
 
